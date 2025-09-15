@@ -230,7 +230,8 @@ CLASS zcl_syuname_scanner IMPLEMENTATION.
 
     SCAN ABAP-SOURCE mt_source_cache
          TOKENS INTO lt_tokens
-         STATEMENTS INTO lt_statements.
+         STATEMENTS INTO lt_statements
+         WITH ANALYSIS.
 
     LOOP AT lt_statements INTO DATA(ls_statement)
       WHERE type = 'I'.  " Include statement

@@ -177,10 +177,11 @@ CLASS lcl_parser IMPLEMENTATION.
 
     CLEAR et_results.
 
-    " Tokenize source code
+    " Tokenize source code with analysis for offset/length
     SCAN ABAP-SOURCE it_source
          TOKENS INTO lt_tokens
-         STATEMENTS INTO lt_statements.
+         STATEMENTS INTO lt_statements
+         WITH ANALYSIS.
 
     " Process each statement
     LOOP AT lt_statements INTO ls_statement.

@@ -195,10 +195,11 @@ CLASS zcl_syuname_parser IMPLEMENTATION.
       APPEND ls_source-statement TO lt_source_lines.
     ENDLOOP.
 
-    " Use SCAN ABAP-SOURCE to tokenize
+    " Use SCAN ABAP-SOURCE to tokenize with analysis for offset/length
     SCAN ABAP-SOURCE lt_source_lines
          TOKENS INTO lt_tokens_temp
-         STATEMENTS INTO lt_stmts_temp.
+         STATEMENTS INTO lt_stmts_temp
+         WITH ANALYSIS.
 
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_syuname_error
