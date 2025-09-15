@@ -178,90 +178,139 @@ Static analysis tool for SAP ABAP that tracks sy-uname (user ID) data flow throu
    - Factory class
    - Main program
 
-## 배포 가이드 (Deployment Guide)
+## 🚀 SAP 서버 배포 가이드 (한국어)
 
-### 간편 배포 방법
+### 📦 단일 파일 배포 방법 (가장 간단함)
 
-#### 1. Transport Request 생성
+이 프로젝트는 **ZSYUNAME_ANLZ.abap** 단일 파일로 모든 기능이 통합되어 있어 배포가 매우 간단합니다.
+
+#### 1단계: 프로그램 생성
 ```
-SE09/SE10 → Create → Workbench Request
-Description: SYUNAME Tracker Deployment
+1. SAP 로그온
+2. T-Code: SE38 또는 SE80 실행
+3. 프로그램명 입력: ZSYUNAME_ANLZ
+4. "생성" 버튼 클릭
+5. 속성 입력:
+   - Title: SY-UNAME Tracker
+   - Type: Executable Program (1)
+   - Package: $TMP (로컬) 또는 Z 패키지
 ```
 
-#### 2. 클래스를 Include로 통합 (옵션)
-배포 단순화를 위해 모든 클래스를 하나의 프로그램에 Include로 포함시킬 수 있습니다:
+#### 2단계: 소스 코드 복사
+```
+1. GitHub의 ZSYUNAME_ANLZ.abap 파일 전체 내용 복사
+2. SE38 편집기에 붙여넣기
+3. "저장" (Ctrl+S)
+4. "구문 검사" (Ctrl+F2)
+5. "활성화" (Ctrl+F3)
+```
 
+#### 3단계: 실행 및 테스트
+```
+1. SE38에서 ZSYUNAME_ANLZ 실행 (F8)
+2. 파라미터 입력:
+   - Program Name: 분석할 프로그램명
+   - Output Path: /tmp/results.csv (또는 원하는 경로)
+3. "실행" (F8)
+```
+
+### 📋 배포 전 체크리스트
+
+- [ ] SAP 개발 권한 확인 (S_DEVELOP)
+- [ ] 파일 쓰기 권한 확인 (S_DATASET)
+- [ ] AL11에서 출력 디렉토리 권한 확인
+
+### 🔧 Transport Request 생성 (운영 서버 이관용)
+
+#### 방법 1: 직접 생성
+```
+1. T-Code: SE09 또는 SE10
+2. "생성" 버튼 클릭
+3. Request 유형: Workbench Request
+4. 설명: SY-UNAME Tracker 배포
+5. 프로그램 ZSYUNAME_ANLZ 추가
+```
+
+#### 방법 2: 프로그램 저장 시 자동 생성
+```
+1. SE38에서 프로그램 저장 시
+2. Package 지정 (Z로 시작하는 개발 패키지)
+3. Transport Request 자동 생성 또는 기존 Request 선택
+```
+
+### 🎯 사용 예제
+
+#### 기본 실행
 ```abap
-REPORT ZSYUNAME_ANALYZER.
+" SE38에서 직접 실행
+ZSYUNAME_ANLZ
 
-* Include 파일들 (각 클래스를 Include로 저장)
-INCLUDE zsyuname_exc_class.    " ZCX_SYUNAME_ERROR
-INCLUDE zsyuname_intf.         " 모든 인터페이스
-INCLUDE zsyuname_scanner_cls.  " ZCL_SYUNAME_SCANNER
-INCLUDE zsyuname_taint_cls.    " ZCL_SYUNAME_TAINT
-INCLUDE zsyuname_parser_cls.   " ZCL_SYUNAME_PARSER
-INCLUDE zsyuname_report_cls.   " ZCL_SYUNAME_REPORT
-INCLUDE zsyuname_factory_cls.  " ZCL_SYUNAME_FACTORY
-
-* 메인 실행 로직
-INCLUDE zsyuname_main.         " Selection screen & START-OF-SELECTION
+" 파라미터:
+P_PROG = 'ZTEST_PROGRAM'     " 분석할 프로그램
+P_OUTPUT = '/tmp/result.csv'  " 결과 파일
 ```
 
-#### 3. Transport 객체 추가
-```
-SE80 → Package Z_SYUNAME → 우클릭 → Write Transport Entry
-또는
-SE09/SE10에서 수동으로 추가:
-- Program ZSYUNAME_ANALYZER
-- 모든 Include 파일들
-- Text Elements, Selection Texts
-```
-
-#### 4. SAPlink 사용 (대안)
-SAPlink를 통한 패키지 전체 Export/Import:
-```
-1. Source 시스템:
-   ZSAPLINK → Export → Package → Z_SYUNAME
-
-2. Target 시스템:
-   ZSAPLINK → Import → 생성된 XML 파일 선택
-```
-
-#### 5. abapGit 사용 (권장)
-GitHub 연동을 통한 버전 관리 및 배포:
-```
-1. Repository 생성:
-   ZABAPGIT → New Online → URL 입력
-
-2. Pull/Push:
-   ZABAPGIT → Repository → Pull (가져오기)
-   ZABAPGIT → Repository → Stage → Commit → Push (내보내기)
-```
-
-### 배포 체크리스트
-
-- [ ] 모든 객체 Syntax Check 완료
-- [ ] ABAP Unit Test 실행 및 통과
-- [ ] Transport Request에 모든 객체 포함 확인
-- [ ] Target 시스템 권한 확인 (S_DEVELOP, S_DATASET)
-- [ ] Application Log Object (ZSYUNAME) 생성
-- [ ] 필요시 Number Range Object 생성
-
-### 배포 후 검증
-
+#### 프로그램에서 호출
 ```abap
-" 1. 프로그램 실행 테스트
-SE38 → ZSYUNAME_ANALYZER → Execute
-
-" 2. 간단한 테스트 프로그램으로 검증
-REPORT ZTEST_SYUNAME.
-DATA: lv_user TYPE sy-uname.
-lv_user = sy-uname.
-INSERT INTO ztable VALUES lv_user.
-
-" 3. 결과 확인
-AL11 → 출력 CSV 파일 확인
+SUBMIT ZSYUNAME_ANLZ
+  WITH p_prog = 'Z_MY_PROGRAM'
+  WITH p_output = '/usr/sap/tmp/analysis.csv'
+  AND RETURN.
 ```
+
+### 📊 결과 확인
+
+1. **파일 확인 (AL11)**
+```
+T-Code: AL11
+디렉토리 선택: /tmp 또는 지정한 경로
+파일명: results.csv
+```
+
+2. **CSV 형식**
+```csv
+Seq,Program,Line,Operation,Target,Field,TaintPath
+1,ZTEST,45,INSERT,ZTABLE,USER_ID,SY-UNAME:45
+2,ZTEST,78,UPDATE,ZLOG,CHANGED_BY,SY-UNAME:10->LV_USER:78
+```
+
+### ⚠️ 주의사항
+
+1. **프로그램명 길이**: ABAP는 30자 제한이 있음 (ZSYUNAME_ANLZ는 OK)
+2. **권한**: 분석 대상 프로그램 읽기 권한 필요
+3. **출력 경로**: 서버 경로 쓰기 권한 확인 필요
+
+### 🔍 문제 해결
+
+#### 권한 오류
+```
+해결: Basis 팀에 S_DEVELOP, S_DATASET 권한 요청
+```
+
+#### 파일 쓰기 실패
+```
+1. AL11에서 디렉토리 권한 확인
+2. 대안 경로: /usr/sap/tmp/ 사용
+```
+
+#### 프로그램을 찾을 수 없음
+```
+1. 프로그램명 정확히 확인 (대문자)
+2. 프로그램 활성화 상태 확인
+```
+
+### 💡 팁
+
+1. **로컬 테스트 먼저**: $TMP 패키지로 먼저 테스트
+2. **작은 프로그램부터**: 간단한 프로그램으로 동작 확인
+3. **배치 작업**: 대용량 프로그램은 SM36으로 백그라운드 실행
+
+### 📞 지원
+
+문제 발생 시:
+1. ST22에서 덤프 확인
+2. SLG1에서 Application Log 확인
+3. GitHub Issues에 문제 제보
 
 ## Usage
 
