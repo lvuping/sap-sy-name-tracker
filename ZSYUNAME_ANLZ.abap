@@ -22,6 +22,8 @@ TYPES: BEGIN OF ty_result,
          taint_path   TYPE string,
        END OF ty_result.
 
+TYPES: tt_results TYPE TABLE OF ty_result.
+
 DATA: gt_source     TYPE TABLE OF string,
       gt_tokens     TYPE TABLE OF stokesx,
       gt_statements TYPE TABLE OF sstmnt,
@@ -158,7 +160,7 @@ CLASS lcl_parser DEFINITION.
                IMPORTING it_tokens  TYPE TABLE
                          iv_line    TYPE i
                          io_taint   TYPE REF TO lcl_taint_tracker
-               EXPORTING et_results TYPE TABLE,
+               EXPORTING et_results TYPE tt_results,
              extract_token_value
                IMPORTING it_tokens TYPE TABLE
                          iv_index  TYPE i
@@ -200,10 +202,12 @@ CLASS lcl_parser IMPLEMENTATION.
         APPEND ls_token TO lt_stmt_tokens.
       ENDLOOP.
 
+      DATA: lt_stmt_results TYPE tt_results.
+
       analyze_statement( EXPORTING it_tokens = lt_stmt_tokens
                                   iv_line = lv_line
                                   io_taint = io_taint
-                        IMPORTING et_results = DATA(lt_stmt_results) ).
+                        IMPORTING et_results = lt_stmt_results ).
 
       APPEND LINES OF lt_stmt_results TO et_results.
     ENDLOOP.
