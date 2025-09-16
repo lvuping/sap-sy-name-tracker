@@ -1,6 +1,6 @@
 ⏺ SAP ABAP SY-UNAME Tracker 사용 가이드 📋
 
-> 🚀 **빠른 배포를 원하시나요?** → [초간단 배포 가이드](DEPLOY_GUIDE.md) 또는 [상세 한국어 가이드](README_KR.md)를 참조하세요!
+> 🚀 **빠른 배포를 원하시나요?** → [초간단 배포 가이드](DEPLOY_GUIDE.md) | [상세 한국어 가이드](README_KR.md) | [SAP GUI 수동 배포](SAP_MANUAL_DEPLOY.md)를 참조하세요!
 
   프로젝트 소개
 

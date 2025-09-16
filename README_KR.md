@@ -5,7 +5,10 @@
 
 ## 🚀 간단한 배포 방법
 
-### 방법 1: 자동 배포 (권장) ⭐
+### 방법 1: SAP GUI 수동 배포 (스크립트 없이) ⭐
+> 📋 **스크립트 없이 SAP GUI에서 직접 하나씩 생성하려면** → [상세 수동 배포 가이드](SAP_MANUAL_DEPLOY.md)를 참조하세요!
+
+### 방법 2: 자동 배포 (Python 스크립트)
 
 #### Windows 사용자:
 ```batch
@@ -30,7 +33,7 @@ chmod +x deploy/deploy.sh
 ./deploy/deploy.sh
 ```
 
-### 방법 2: SAP GUI 수동 배포 📋
+### 방법 3: SAP GUI 간단 배포 📋
 
 #### 단계 1: 패키지 생성
 1. SAP GUI 로그인
@@ -75,7 +78,7 @@ ZSYUNAME_ANALYZER (실행 프로그램)
 2. 문법 체크 (Ctrl+F2)
 3. 활성화 (Ctrl+F3)
 
-### 방법 3: Transport Request 사용 🚛
+### 방법 4: Transport Request 사용 🚛
 
 1. 트랜잭션 `SE09` 또는 `SE10` 실행
 2. 새 Workbench Request 생성
