@@ -257,7 +257,7 @@ CLASS lcl_parser IMPLEMENTATION.
         lv_table = extract_token_value( it_tokens = it_tokens iv_index = 2 ).
 
         " Check for tainted variables in the statement
-        LOOP AT it_tokens TRANSPORTING NO FIELDS WHERE str CS 'SY-UNAME'.
+        LOOP AT it_tokens INTO DATA(ls_token_check) WHERE ls_token_check-str CS 'SY-UNAME'.
           gv_seq_num = gv_seq_num + 1.
           ls_result-seq_num = gv_seq_num.
           ls_result-program = p_prog.
@@ -336,7 +336,7 @@ CLASS lcl_parser IMPLEMENTATION.
         DATA: lv_where_found TYPE abap_bool.
         lv_where_found = abap_false.
 
-        LOOP AT it_tokens TRANSPORTING NO FIELDS WHERE str = 'WHERE'.
+        LOOP AT it_tokens INTO DATA(ls_where_token) WHERE ls_where_token-str = 'WHERE'.
           lv_where_found = abap_true.
           EXIT.
         ENDLOOP.
