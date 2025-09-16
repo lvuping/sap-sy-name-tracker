@@ -136,7 +136,10 @@ CLASS lcl_taint_tracker IMPLEMENTATION.
   METHOD get_taint_path.
     DATA: ls_entry TYPE ty_taint_entry.
     CLEAR rv_path.
-    LOOP AT mt_tainted INTO ls_entry WHERE variable = iv_variable.
+    LOOP AT mt_tainted INTO ls_entry.
+      IF ls_entry-variable <> iv_variable.
+        CONTINUE.
+      ENDIF.
       IF rv_path IS NOT INITIAL.
         rv_path = |{ rv_path } -> |.
       ENDIF.
@@ -258,7 +261,10 @@ CLASS lcl_parser IMPLEMENTATION.
 
         " Check for tainted variables in the statement
         DATA: ls_token_check TYPE stokesx.
-        LOOP AT it_tokens INTO ls_token_check WHERE str CS 'SY-UNAME'.
+        LOOP AT it_tokens INTO ls_token_check.
+          IF NOT ls_token_check-str CS 'SY-UNAME'.
+            CONTINUE.
+          ENDIF.
           gv_seq_num = gv_seq_num + 1.
           ls_result-seq_num = gv_seq_num.
           ls_result-program = p_prog.
@@ -338,7 +344,10 @@ CLASS lcl_parser IMPLEMENTATION.
               ls_where_token TYPE stokesx.
         lv_where_found = abap_false.
 
-        LOOP AT it_tokens INTO ls_where_token WHERE str = 'WHERE'.
+        LOOP AT it_tokens INTO ls_where_token.
+          IF ls_where_token-str <> 'WHERE'.
+            CONTINUE.
+          ENDIF.
           lv_where_found = abap_true.
           EXIT.
         ENDLOOP.
