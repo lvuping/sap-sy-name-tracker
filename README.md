@@ -1,5 +1,7 @@
 ⏺ SAP ABAP SY-UNAME Tracker 사용 가이드 📋
 
+> 🚀 **빠른 배포를 원하시나요?** → [초간단 배포 가이드](DEPLOY_GUIDE.md) 또는 [상세 한국어 가이드](README_KR.md)를 참조하세요!
+
   프로젝트 소개
 
   이 도구는 SAP ABAP 프로그램에서 sy-uname(사용자 ID) 데이터가 어떻게 흐르는지 추적하여, 사용자 정보가 데이터베이스 테이블, RFC 호출, 기타 작업에 미치는 영향을
