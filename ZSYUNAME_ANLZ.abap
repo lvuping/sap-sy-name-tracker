@@ -22,13 +22,13 @@ TYPES: BEGIN OF ty_result,
          taint_path   TYPE string,
        END OF ty_result.
 
-TYPES: tt_results TYPE TABLE OF ty_result.
+TYPES: tt_results TYPE STANDARD TABLE OF ty_result WITH DEFAULT KEY.
 
-DATA: gt_source     TYPE TABLE OF string,
-      gt_tokens     TYPE TABLE OF stokesx,
-      gt_statements TYPE TABLE OF sstmnt,
-      gt_tainted    TYPE TABLE OF ty_taint_entry,
-      gt_results    TYPE TABLE OF ty_result,
+DATA: gt_source     TYPE STANDARD TABLE OF string WITH DEFAULT KEY,
+      gt_tokens     TYPE STANDARD TABLE OF stokesx WITH DEFAULT KEY,
+      gt_statements TYPE STANDARD TABLE OF sstmnt WITH DEFAULT KEY,
+      gt_tainted    TYPE STANDARD TABLE OF ty_taint_entry WITH DEFAULT KEY,
+      gt_results    TYPE STANDARD TABLE OF ty_result WITH DEFAULT KEY,
       gv_seq_num    TYPE i.
 
 SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
@@ -43,7 +43,7 @@ CLASS lcl_scanner DEFINITION.
   PUBLIC SECTION.
     METHODS: read_program
       IMPORTING iv_program TYPE progname
-      EXPORTING et_source  TYPE TABLE.
+      EXPORTING et_source  TYPE STANDARD TABLE.
 ENDCLASS.
 
 *----------------------------------------------------------------------*
@@ -51,7 +51,7 @@ ENDCLASS.
 *----------------------------------------------------------------------*
 CLASS lcl_scanner IMPLEMENTATION.
   METHOD read_program.
-    DATA: lt_include TYPE TABLE OF progname,
+    DATA: lt_include TYPE STANDARD TABLE OF progname WITH DEFAULT KEY,
           lv_include TYPE progname.
 
     CLEAR et_source.
@@ -72,7 +72,7 @@ CLASS lcl_scanner IMPLEMENTATION.
         OTHERS     = 1.
 
     LOOP AT lt_include INTO lv_include.
-      DATA: lt_include_source TYPE TABLE OF string.
+      DATA: lt_include_source TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
       READ REPORT lv_include INTO lt_include_source.
       IF sy-subrc = 0.
         APPEND LINES OF lt_include_source TO et_source.
@@ -99,7 +99,7 @@ CLASS lcl_taint_tracker DEFINITION.
                RETURNING VALUE(rv_path) TYPE string.
 
   PRIVATE SECTION.
-    DATA: mt_tainted TYPE TABLE OF ty_taint_entry.
+    DATA: mt_tainted TYPE STANDARD TABLE OF ty_taint_entry WITH DEFAULT KEY.
 ENDCLASS.
 
 *----------------------------------------------------------------------*
@@ -151,18 +151,18 @@ ENDCLASS.
 CLASS lcl_parser DEFINITION.
   PUBLIC SECTION.
     METHODS: parse_statements
-               IMPORTING it_source  TYPE TABLE
+               IMPORTING it_source  TYPE STANDARD TABLE
                          io_taint   TYPE REF TO lcl_taint_tracker
-               EXPORTING et_results TYPE TABLE.
+               EXPORTING et_results TYPE STANDARD TABLE.
 
   PRIVATE SECTION.
     METHODS: analyze_statement
-               IMPORTING it_tokens  TYPE TABLE
+               IMPORTING it_tokens  TYPE STANDARD TABLE
                          iv_line    TYPE i
                          io_taint   TYPE REF TO lcl_taint_tracker
                EXPORTING et_results TYPE tt_results,
              extract_token_value
-               IMPORTING it_tokens TYPE TABLE
+               IMPORTING it_tokens TYPE STANDARD TABLE
                          iv_index  TYPE i
                RETURNING VALUE(rv_value) TYPE string.
 ENDCLASS.
@@ -172,8 +172,8 @@ ENDCLASS.
 *----------------------------------------------------------------------*
 CLASS lcl_parser IMPLEMENTATION.
   METHOD parse_statements.
-    DATA: lt_tokens     TYPE TABLE OF stokesx,
-          lt_statements TYPE TABLE OF sstmnt,
+    DATA: lt_tokens     TYPE STANDARD TABLE OF stokesx WITH DEFAULT KEY,
+          lt_statements TYPE STANDARD TABLE OF sstmnt WITH DEFAULT KEY,
           ls_statement  TYPE sstmnt,
           lv_line       TYPE i.
 
@@ -190,7 +190,7 @@ CLASS lcl_parser IMPLEMENTATION.
       lv_line = ls_statement-trow.
 
       " Extract tokens for this statement
-      DATA: lt_stmt_tokens TYPE TABLE OF stokesx,
+      DATA: lt_stmt_tokens TYPE STANDARD TABLE OF stokesx WITH DEFAULT KEY,
             ls_token       TYPE stokesx,
             lv_from        TYPE i,
             lv_to          TYPE i.
@@ -257,7 +257,8 @@ CLASS lcl_parser IMPLEMENTATION.
         lv_table = extract_token_value( it_tokens = it_tokens iv_index = 2 ).
 
         " Check for tainted variables in the statement
-        LOOP AT it_tokens INTO DATA(ls_token_check) WHERE ls_token_check-str CS 'SY-UNAME'.
+        DATA: ls_token_check TYPE stokesx.
+        LOOP AT it_tokens INTO ls_token_check WHERE str CS 'SY-UNAME'.
           gv_seq_num = gv_seq_num + 1.
           ls_result-seq_num = gv_seq_num.
           ls_result-program = p_prog.
@@ -333,10 +334,11 @@ CLASS lcl_parser IMPLEMENTATION.
 
       WHEN 'SELECT'.
         " SELECT statements with tainted WHERE conditions
-        DATA: lv_where_found TYPE abap_bool.
+        DATA: lv_where_found TYPE abap_bool,
+              ls_where_token TYPE stokesx.
         lv_where_found = abap_false.
 
-        LOOP AT it_tokens INTO DATA(ls_where_token) WHERE ls_where_token-str = 'WHERE'.
+        LOOP AT it_tokens INTO ls_where_token WHERE str = 'WHERE'.
           lv_where_found = abap_true.
           EXIT.
         ENDLOOP.
@@ -394,7 +396,7 @@ ENDCLASS.
 CLASS lcl_reporter DEFINITION.
   PUBLIC SECTION.
     METHODS: write_csv
-               IMPORTING it_results TYPE TABLE
+               IMPORTING it_results TYPE STANDARD TABLE
                          iv_file    TYPE string.
 
   PRIVATE SECTION.
